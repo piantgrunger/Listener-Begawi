@@ -1,0 +1,7 @@
+/__history
+/Win32/Debug/*.dcu
+/Win32/Debug/*.exe
+/Win32/Debug/*.ini
+
+
+/__recovery
