@@ -9,7 +9,7 @@ uses
   Data.Bind.Components, Data.Bind.ObjectScope,uLkJSON, Vcl.OleCtrls,
   zkemkeeper_TLB, Vcl.ExtCtrls,inifiles, Vcl.Menus;
 
-const API_ADDRESS = 'http://localhost:8080/Bagawai/web/api/';
+const API_ADDRESS = 'https://banjarbaru-begawi.id/api/';
 type
   TForm1 = class(TForm)
     Button1: TButton;
@@ -27,6 +27,8 @@ type
     PopupMenu1: TPopupMenu;
     Close1: TMenuItem;
     Maximize1: TMenuItem;
+    Button4: TButton;
+    Button5: TButton;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
          procedure CZKEM1AttTransactionEx(Sender: TObject;
@@ -37,6 +39,8 @@ type
     procedure FormCreate(Sender: TObject);
     procedure Close1Click(Sender: TObject);
     procedure Maximize1Click(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
+    procedure Button5Click(Sender: TObject);
   private
     procedure OnMinimize(Sender:TObject);
     { Private declarations }
@@ -126,6 +130,38 @@ begin
      end;
 end;
 
+procedure TForm1.Button4Click(Sender: TObject);
+var s:TStringList;
+  ss: string;
+begin
+   s:=TStringList.Create;
+   s.Add('id_skpd='+id);
+   s.Add('kode_checklog=10001');
+   s.Add('waktu=07:00');
+   s.Add('tanggal=2018-12-01');
+   s.Add('jenis=masuk_kerja');
+
+
+
+  ss:= IdHTTP1.Post(API_ADDRESS+ 'absen',s);
+
+end;
+
+procedure TForm1.Button5Click(Sender: TObject);
+var
+  dwVerifyMode,dwInOutMode,dwYear,dwMonth,dwDay,dwHour,dwMinute,
+  dwSecond,dwWorkCode, Privilege,i: Integer;
+  dwEnrollNumber, UName, Pass : WideString;
+begin
+     for i:= 0 to MM_IP_masuk.Lines.Count-1 do
+     begin
+
+     end;
+
+
+
+end;
+
 procedure TForm1.Close1Click(Sender: TObject);
 begin
    Application.Terminate;
@@ -135,12 +171,43 @@ end;
 procedure TForm1.CZKEM1AttTransactionEx(Sender: TObject;
   const EnrollNumber: WideString; IsInValid, AttState, VerifyMethod, Year,
   Month, Day, Hour, Minute, Second, WorkCode: Integer);
-var IP,flag,pesan : string;
+var IP,flag,pesan,jenis : string;
+
+ s:TStringList;
+  ss: string;
+  IdHttp:TIdHTTP;
+
 begin
+
+
+   if workcode = 0 then
+      jenis := 'masuk_kerja'
+   else if workcode=1 then
+        jenis :='pulang_kerja';
+
+
     ip:= MM_IP_masuk.Lines[TCZKEM(sender).MachineNumber] + '-  '+inttostr(AttState);
-      pesan := IP+'  '+EnrollNumber+ifthen(workcode=1,' Masuk ',' Pulang ')+' ~ '+FormatDateTime('dd/mm/yyy HH:nn:ss ',EncodeDate(Year,Month,Day)+EncodeTime(Hour,Minute,Second,0)) ;
+      pesan := IP+'  '+EnrollNumber+' ~'+jenis+' ~ '+FormatDateTime('dd/mm/yyyy HH:nn:ss ',EncodeDate(Year,Month,Day)+EncodeTime(Hour,Minute,Second,0)) ;
       ip := copy(ip,0,pos('-',ip)-1);
         lb_stat.Items.Add(pesan);
+           s:=TStringList.Create;
+   s.Add('id_skpd='+id);
+   s.Add('kode_checklog='+EnrollNumber);
+   s.Add('waktu='+FormatDateTime('HH:nn',EncodeDate(Year,Month,Day)+EncodeTime(Hour,Minute,Second,0)));
+   s.Add('tanggal='+FormatDateTime('yyyy-mm-dd',EncodeDate(Year,Month,Day)));
+   s.Add('jenis='+jenis);
+
+
+
+  IdHttp := TIdHTTP.Create(nil);
+  try
+    ss:= IdHTTP.Post(API_ADDRESS+ 'absen',s);
+    IdHttp.Free;
+
+  Except
+    IdHttp.Free;
+  end;
+
 
 
 end;

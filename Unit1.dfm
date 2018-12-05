@@ -103,6 +103,26 @@ object Form1: TForm1
     TabOrder = 6
     OnClick = Button3Click
   end
+  object Button4: TButton
+    Left = 489
+    Top = 358
+    Width = 75
+    Height = 25
+    Caption = 'Coba'
+    TabOrder = 7
+    Visible = False
+    OnClick = Button4Click
+  end
+  object Button5: TButton
+    Left = 264
+    Top = 358
+    Width = 75
+    Height = 25
+    Caption = 'Read Data'
+    TabOrder = 8
+    Visible = False
+    OnClick = Button5Click
+  end
   object IdHTTP1: TIdHTTP
     AllowCookies = True
     ProxyParams.BasicAuthentication = False
