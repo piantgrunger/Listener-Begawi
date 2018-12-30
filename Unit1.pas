@@ -27,7 +27,6 @@ type
     PopupMenu1: TPopupMenu;
     Close1: TMenuItem;
     Maximize1: TMenuItem;
-    Button4: TButton;
     Button5: TButton;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
@@ -41,6 +40,7 @@ type
     procedure Maximize1Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     procedure OnMinimize(Sender:TObject);
     { Private declarations }
@@ -51,6 +51,7 @@ type
 var
   Form1: TForm1;
   id :string;
+  BatasUpload : String;
    CZKem : array of TCZKEM;
 
 implementation
@@ -71,6 +72,7 @@ begin
      MessageDlg(' Koneksi Berhasil SKPD: '+#13+ VarToStr(json.Field['message'].Value),mtInformation,[mbok],1)
   else MessageDlg( VarToStr(json.Field['message'].Value),mtError,[mbok],1);
   id := json.Field['id'].Value;
+  BatasUpload := VarToStrDef( json.Field['tanggal'].Value,'1990-01-01');
   if strtoint(id) >0 then
   begin
     Ini:=TIniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
@@ -150,11 +152,45 @@ end;
 procedure TForm1.Button5Click(Sender: TObject);
 var
   dwVerifyMode,dwInOutMode,dwYear,dwMonth,dwDay,dwHour,dwMinute,
-  dwSecond,dwWorkCode, Privilege,i: Integer;
+  dwSecond,dwWorkCode, Privilege,i,DevID: Integer;
   dwEnrollNumber, UName, Pass : WideString;
+  s:TStringList;
+  ss: string;
+  IdHttp:TIdHTTP;
+  IP,flag,pesan,jenis : string;
+
 begin
      for i:= 0 to MM_IP_masuk.Lines.Count-1 do
      begin
+      while   CZKem[i].SSR_GetGeneralLogData(DevID,dwEnrollNumber,dwVerifyMode,
+      dwInOutMode,dwYear,dwMonth,dwDay,dwHour,dwMinute,dwSecond,dwWorkCode) do
+      begin
+         if dwWorkCode = 0 then
+           jenis := 'masuk_kerja'
+        else if dwWorkCode=1 then
+           jenis :='pulang_kerja';
+               ip:= MM_IP_masuk.Lines[i] ;
+           s:=TStringList.Create;
+
+
+       s.Add('id_skpd='+id);
+       s.Add('kode_checklog='+dwEnrollNumber);
+       s.Add('waktu='+FormatDateTime('HH:nn',EncodeDate(dwYear,dwMonth,dwDay)+EncodeTime(dwHour,dwMinute,dwSecond,0)));
+       s.Add('tanggal='+FormatDateTime('yyyy-mm-dd',EncodeDate(dwYear,dwMonth,dwDay)));
+       s.Add('jenis='+jenis);
+
+
+        if FormatDateTime('yyyy-mm-dd',EncodeDate(dwYear,dwMonth,dwDay))> BatasUpload then
+        Begin
+          pesan := IP+'  '+dwEnrollNumber+' ~ '+FormatDateTime('dd/mm/yyyy HH:nn:ss ',EncodeDate(dwYear,dwMonth,dwDay)+EncodeTime(dwHour,dwMinute,dwSecond,0)) ;
+          ip := copy(ip,0,pos('-',ip)-1);
+          lb_stat.Items.Add(pesan);
+          ss:= IdHTTP1.Post(API_ADDRESS+ 'absen',s);
+        End;
+
+
+
+      end;
 
      end;
 
@@ -187,7 +223,7 @@ begin
 
 
     ip:= MM_IP_masuk.Lines[TCZKEM(sender).MachineNumber] + '-  '+inttostr(AttState);
-      pesan := IP+'  '+EnrollNumber+' ~'+jenis+' ~ '+FormatDateTime('dd/mm/yyyy HH:nn:ss ',EncodeDate(Year,Month,Day)+EncodeTime(Hour,Minute,Second,0)) ;
+      pesan := IP+'  '+EnrollNumber+' ~ '+FormatDateTime('dd/mm/yyyy HH:nn:ss ',EncodeDate(Year,Month,Day)+EncodeTime(Hour,Minute,Second,0)) ;
       ip := copy(ip,0,pos('-',ip)-1);
         lb_stat.Items.Add(pesan);
            s:=TStringList.Create;
@@ -197,18 +233,21 @@ begin
    s.Add('tanggal='+FormatDateTime('yyyy-mm-dd',EncodeDate(Year,Month,Day)));
    s.Add('jenis='+jenis);
 
+    IdHttp := TIdHTTP.Create(nil);
+    try
+      ss:= IdHTTP.Post(API_ADDRESS+ 'absen',s);
+    finally
+      IdHttp.Free;
+    end;
 
 
-  IdHttp := TIdHTTP.Create(nil);
-  try
-    ss:= IdHTTP.Post(API_ADDRESS+ 'absen',s);
-    IdHttp.Free;
-
-  Except
-    IdHttp.Free;
-  end;
 
 
+end;
+
+procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+   MM_IP_masuk.Lines.SaveToFile(ChangeFileExt(Application.ExeName,'.lst'));
 
 end;
 
@@ -218,6 +257,9 @@ begin
     Application.OnMinimize:=OnMinimize; // Set the event handler for application minimize
         Ini:=TIniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
    Edit1.Text:=   Ini.ReadString('credential','token','');
+   Edit1.Enabled := Edit1.Text='';
+   if FileExists(ChangeFileExt(Application.ExeName,'.lst')) then
+      MM_IP_masuk.Lines.LoadFromFile(ChangeFileExt(Application.ExeName,'.lst'));
    Button1.Click;
     Ini.Free;
 

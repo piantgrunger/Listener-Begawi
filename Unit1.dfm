@@ -1,9 +1,9 @@
 object Form1: TForm1
   Left = 0
   Top = 0
-  Caption = 'Listener'
+  Caption = 'Banjarbaru Bagawi'
   ClientHeight = 408
-  ClientWidth = 698
+  ClientWidth = 575
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -11,29 +11,30 @@ object Form1: TForm1
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  OnClose = FormClose
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
     Left = 20
     Top = 8
-    Width = 29
+    Width = 92
     Height = 13
-    Caption = 'Token'
+    Caption = 'Checklog Key SKPD'
   end
   object Button1: TButton
-    Left = 74
+    Left = 119
     Top = 32
-    Width = 75
+    Width = 84
     Height = 25
     Caption = 'Connect'
     TabOrder = 0
     OnClick = Button1Click
   end
   object Edit1: TEdit
-    Left = 74
+    Left = 119
     Top = 5
-    Width = 407
+    Width = 442
     Height = 21
     TabOrder = 1
   end
@@ -103,24 +104,13 @@ object Form1: TForm1
     TabOrder = 6
     OnClick = Button3Click
   end
-  object Button4: TButton
-    Left = 489
-    Top = 358
-    Width = 75
-    Height = 25
-    Caption = 'Coba'
-    TabOrder = 7
-    Visible = False
-    OnClick = Button4Click
-  end
   object Button5: TButton
     Left = 264
     Top = 358
-    Width = 75
+    Width = 297
     Height = 25
-    Caption = 'Read Data'
-    TabOrder = 8
-    Visible = False
+    Caption = 'Klik di Sini Untuk Melaporkan Data SKPD'
+    TabOrder = 7
     OnClick = Button5Click
   end
   object IdHTTP1: TIdHTTP
