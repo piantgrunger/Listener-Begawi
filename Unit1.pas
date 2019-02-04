@@ -9,7 +9,7 @@ uses
   Data.Bind.Components, Data.Bind.ObjectScope,uLkJSON, Vcl.OleCtrls,
   zkemkeeper_TLB, Vcl.ExtCtrls,inifiles, Vcl.Menus;
 
-const API_ADDRESS = 'https://banjarbaru-begawi.id/api/';
+const API_ADDRESS = 'https://banjarbaru-bagawi.id/api/';
 type
   TForm1 = class(TForm)
     Button1: TButton;
@@ -69,9 +69,9 @@ begin
   ss:= IdHTTP1.Post(API_ADDRESS+ 'connect',s);
   json := TlkJSON.ParseText(ss);
   if json.Field['status'].Value = 200 then
+  begin
      MessageDlg(' Koneksi Berhasil SKPD: '+#13+ VarToStr(json.Field['message'].Value),mtInformation,[mbok],1)
-  else MessageDlg( VarToStr(json.Field['message'].Value),mtError,[mbok],1);
-  id := json.Field['id'].Value;
+       id := json.Field['id'].Value;
   BatasUpload := VarToStrDef( json.Field['tanggal'].Value,'1990-01-01');
   if strtoint(id) >0 then
   begin
@@ -79,6 +79,9 @@ begin
     Ini.WriteString('credential','token',edit1.text);
     Ini.Free;
   end;
+
+  end
+  else MessageDlg( VarToStr(json.Field['message'].Value),mtError,[mbok],1);
   Button2.Enabled:= strtoint(id)>0;
 
 end;
@@ -180,7 +183,7 @@ begin
        s.Add('jenis='+jenis);
 
 
-        if FormatDateTime('yyyy-mm-dd',EncodeDate(dwYear,dwMonth,dwDay))> BatasUpload then
+        if FormatDateTime('yyyy-mm-dd',EncodeDate(dwYear,dwMonth,dwDay))>= BatasUpload then
         Begin
           pesan := IP+'  '+dwEnrollNumber+' ~ '+FormatDateTime('dd/mm/yyyy HH:nn:ss ',EncodeDate(dwYear,dwMonth,dwDay)+EncodeTime(dwHour,dwMinute,dwSecond,0)) ;
           ip := copy(ip,0,pos('-',ip)-1);
