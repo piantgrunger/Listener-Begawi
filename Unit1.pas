@@ -28,6 +28,7 @@ type
     Close1: TMenuItem;
     Maximize1: TMenuItem;
     Button5: TButton;
+    Button4: TButton;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
          procedure CZKEM1AttTransactionEx(Sender: TObject;
@@ -67,22 +68,27 @@ begin
    s:=TStringList.Create;
    s.Add('token='+Edit1.Text);
   ss:= IdHTTP1.Post(API_ADDRESS+ 'connect',s);
-  json := TlkJSON.ParseText(ss);
-  if json.Field['status'].Value = 200 then
-  begin
-     MessageDlg(' Koneksi Berhasil SKPD: '+#13+ VarToStr(json.Field['message'].Value),mtInformation,[mbok],1)
+  try
+    json := TlkJSON.ParseText(ss);
+    if json.Field['status'].Value = 200 then
+     begin
+        MessageDlg(' Koneksi Berhasil SKPD: '+#13+ VarToStr(json.Field['message'].Value),mtInformation,[mbok],1);
        id := json.Field['id'].Value;
-  BatasUpload := VarToStrDef( json.Field['tanggal'].Value,'1990-01-01');
-  if strtoint(id) >0 then
-  begin
-    Ini:=TIniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
-    Ini.WriteString('credential','token',edit1.text);
-    Ini.Free;
-  end;
+       BatasUpload := VarToStrDef( json.Field['tanggal'].Value,'1990-01-01');
+    if strtoint(id) >0 then
+    begin
+      Ini:=TIniFile.Create(ChangeFileExt(Application.ExeName,'.ini'));
+       Ini.WriteString('credential','token',edit1.text);
+       Ini.Free;
+     end;
 
   end
   else MessageDlg( VarToStr(json.Field['message'].Value),mtError,[mbok],1);
-  Button2.Enabled:= strtoint(id)>0;
+  except
+
+  end;
+
+  Button2.Enabled:= strtointdef(id,0)<>0;
 
 end;
 
@@ -136,20 +142,14 @@ begin
 end;
 
 procedure TForm1.Button4Click(Sender: TObject);
-var s:TStringList;
-  ss: string;
+var i:Integer;
 begin
-   s:=TStringList.Create;
-   s.Add('id_skpd='+id);
-   s.Add('kode_checklog=10001');
-   s.Add('waktu=07:00');
-   s.Add('tanggal=2018-12-01');
-   s.Add('jenis=masuk_kerja');
+     Button5.Click;
+     for i:= 0 to MM_IP_masuk.Lines.Count-1 do
+     begin
+        CZKem[i].ClearGLog(i)
 
-
-
-  ss:= IdHTTP1.Post(API_ADDRESS+ 'absen',s);
-
+     end;
 end;
 
 procedure TForm1.Button5Click(Sender: TObject);

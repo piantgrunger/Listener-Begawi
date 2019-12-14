@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Banjarbaru Bagawi'
-  ClientHeight = 408
+  ClientHeight = 420
   ClientWidth = 575
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -112,6 +112,15 @@ object Form1: TForm1
     Caption = 'Klik di Sini Untuk Melaporkan Data SKPD'
     TabOrder = 7
     OnClick = Button5Click
+  end
+  object Button4: TButton
+    Left = 264
+    Top = 389
+    Width = 297
+    Height = 25
+    Caption = 'Klik di Sini Untuk Menghapus Data Mesin'
+    TabOrder = 8
+    OnClick = Button4Click
   end
   object IdHTTP1: TIdHTTP
     AllowCookies = True
